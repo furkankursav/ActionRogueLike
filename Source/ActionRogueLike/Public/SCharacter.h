@@ -9,6 +9,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class ASMagicProjectile;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -21,6 +22,8 @@ public:
 
 protected:
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ASMagicProjectile> ProjectileClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComp;
@@ -33,6 +36,12 @@ protected:
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
+	void MoveRight(float Value);
+
+
+	void RotationVisualization();
+
+	void PrimaryAttack();
 
 public:	
 	// Called every frame
@@ -40,5 +49,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	
 
 };
