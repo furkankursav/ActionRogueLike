@@ -3,6 +3,7 @@
 
 #include "ActionRogueLike/Public/SCharacter.h"
 
+#include "ActionRogueLike/Public/SInteractionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -21,6 +22,8 @@ ASCharacter::ASCharacter()
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	InteractionComp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionComp"));
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
@@ -73,11 +76,31 @@ void ASCharacter::PrimaryAttack()
 {
 	if(ProjectileClass)
 	{
-		const FVector SpawnLoc = GetMesh()->GetSocketLocation(FName("Muzzle_01"));
-		FTransform SpawnTM = FTransform(GetControlRotation(),SpawnLoc);
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+		if(AttackMontage)
+		{
+			PlayAnimMontage(AttackMontage);
+		}
+
+		FTimerHandle TimerHandle;
+
+		GetWorldTimerManager().SetTimer(TimerHandle, [&]
+		{
+			const FVector SpawnLoc = GetMesh()->GetSocketLocation(FName("Muzzle_01"));
+			FTransform SpawnTM = FTransform(GetControlRotation(),SpawnLoc);
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+			DrawDebugSphere(GetWorld(), SpawnTM.GetLocation(), 20, 32, FColor::Red, false, 2.f, 0, 1);
+		}, 0.15f, false);
+		
+	}
+}
+
+void ASCharacter::PrimaryInteract()
+{
+	if(InteractionComp)
+	{
+		InteractionComp->PrimaryInteract();
 	}
 }
 
@@ -105,6 +128,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
 
 }
 
