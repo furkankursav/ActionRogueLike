@@ -22,6 +22,7 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	RadialForceComp->bImpulseVelChange = true;
 	RadialForceComp->bAutoActivate = false;
 	RadialForceComp->SetupAttachment(GetRootComponent());
+	RadialForceComp->AddCollisionChannelToAffect(ECC_WorldDynamic);
 
 }
 
@@ -40,6 +41,9 @@ void ASExplosiveBarrel::OnStaticMeshCompHit(UPrimitiveComponent* HitComponent,
 	if(RadialForceComp)
 	{
 		RadialForceComp->FireImpulse();
+		const FString CombinedString = FString::Printf(TEXT("Hit at Location: %s"), *Hit.ImpactPoint.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s, at game time: %f"), *GetNameSafe(OtherActor), GetWorld()->TimeSeconds);
+		DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.f, true, 2);
 	}
 }
 

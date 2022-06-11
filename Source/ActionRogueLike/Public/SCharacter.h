@@ -9,9 +9,9 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-class ASMagicProjectile;
 class USInteractionComponent;
 class UAnimMontage;
+class ASProjectile;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -25,10 +25,22 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<ASMagicProjectile> ProjectileClass;
+	TSubclassOf<ASProjectile> MagicProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	UAnimMontage* AttackMontage;
+	TSubclassOf<ASProjectile> BlackholeProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<ASProjectile> DashProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* MagicProjectileAttackMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* BlackholeProjectileAttackMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* DashProjectileAttackMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComp;
@@ -51,7 +63,17 @@ protected:
 
 	void PrimaryAttack();
 
+	void SecondaryAttack();
+
+	void TertiaryAttack();
+
 	void PrimaryInteract();
+
+	FTimerHandle AttackDelay_TimerHandle;
+	FTimerDelegate AttackDelay_Delegate;
+
+	UFUNCTION()
+	void AttackDelay_Elapsed(TSubclassOf<ASProjectile> ProjectileClass, UAnimMontage* AttackMontage);
 
 public:	
 	// Called every frame
@@ -60,6 +82,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
+	UFUNCTION(BlueprintCallable)
+	void SpawnProjectile(TSubclassOf<ASProjectile> ProjectileClass, UAnimMontage* AttackMontage, float WaitTime = 0.15f);
 
 };
