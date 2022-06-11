@@ -89,8 +89,9 @@ void ASCharacter::PrimaryAttack()
 			FTransform SpawnTM = FTransform(GetControlRotation(),SpawnLoc);
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			SpawnParams.Instigator = this;
 			GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
-			DrawDebugSphere(GetWorld(), SpawnTM.GetLocation(), 20, 32, FColor::Red, false, 2.f, 0, 1);
+			
 		}, 0.15f, false);
 		
 	}
