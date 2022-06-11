@@ -3,6 +3,7 @@
 
 #include "ActionRogueLike/Public/SExplosiveBarrel.h"
 
+#include "SAttributeComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
 // Sets default values
@@ -41,9 +42,20 @@ void ASExplosiveBarrel::OnStaticMeshCompHit(UPrimitiveComponent* HitComponent,
 	if(RadialForceComp)
 	{
 		RadialForceComp->FireImpulse();
+		
 		const FString CombinedString = FString::Printf(TEXT("Hit at Location: %s"), *Hit.ImpactPoint.ToString());
 		UE_LOG(LogTemp, Warning, TEXT("OtherActor: %s, at game time: %f"), *GetNameSafe(OtherActor), GetWorld()->TimeSeconds);
 		DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.f, true, 2);
+	}
+
+	if(OtherActor)
+	{
+		 USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+
+		if(AttributeComp)
+		{
+			AttributeComp->ApplyHealthChange(-30);
+		}
 	}
 }
 

@@ -3,6 +3,7 @@
 
 #include "ActionRogueLike/Public/SMagicProjectile.h"
 
+#include "SAttributeComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -37,6 +38,22 @@ void ASMagicProjectile::SphereComp_OnComponentHit(UPrimitiveComponent* HitCompon
 {
 	Super::SphereComp_OnComponentHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
 	
+}
+
+void ASMagicProjectile::SphereComp_OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	Super::SphereComp_OnComponentBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,
+	                                          SweepResult);
+
+	if(OtherActor && OtherActor != GetInstigator() && OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()))
+	{
+		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+
+		AttributeComp->ApplyHealthChange(-20.f);
+
+		Destroy();
+	}
 }
 
 // Called every frame

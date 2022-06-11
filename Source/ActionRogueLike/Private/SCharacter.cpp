@@ -3,6 +3,7 @@
 
 #include "ActionRogueLike/Public/SCharacter.h"
 
+#include "SAttributeComponent.h"
 #include "SBlackholeProjectile.h"
 #include "ActionRogueLike/Public/SInteractionComponent.h"
 #include "Camera/CameraComponent.h"
@@ -29,6 +30,8 @@ ASCharacter::ASCharacter()
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
+
+	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
 	
 }
 
@@ -127,7 +130,7 @@ void ASCharacter::AttackDelay_Elapsed(TSubclassOf<ASProjectile> ProjectileClass,
 
 		// debugging trace
 		FColor DebugColor = bCameraHit ? FColor::Green : FColor::Red;
-		DrawDebugLine(GetWorld(), CameraLoc, DesiredTargetLoc, DebugColor, false, 2.f, 0, 2.f);
+		//DrawDebugLine(GetWorld(), CameraLoc, DesiredTargetLoc, DebugColor, false, 2.f, 0, 2.f);
 
 		// spawning projectile
 		FTransform SpawnTM = FTransform(SpawnRot, SpawnLoc);

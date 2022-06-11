@@ -60,7 +60,7 @@ void USInteractionComponent::PrimaryInteract()
 			{
 				APawn* MyPawn = Cast<APawn>(MyOwner);
 				ISGameplayInterface::Execute_Interact(HitActor, MyPawn);
-				DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, DebugLineColor, false, 2.f);
+				//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, DebugLineColor, false, 2.f);
 				break;
 			}
 		}
@@ -70,7 +70,7 @@ void USInteractionComponent::PrimaryInteract()
 	
 
 	
-	DrawDebugLine(GetWorld(), EyeLocation, End, DebugLineColor, false, 2.f, 0, 5);
+	//DrawDebugLine(GetWorld(), EyeLocation, End, DebugLineColor, false, 2.f, 0, 5);
 
 	
 }
