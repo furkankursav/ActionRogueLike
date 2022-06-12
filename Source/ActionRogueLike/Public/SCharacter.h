@@ -54,6 +54,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
+
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UParticleSystem* CastingParticle;
 	
 	
 	// Called when the game starts or when spawned
@@ -78,6 +82,9 @@ protected:
 
 	UFUNCTION()
 	void AttackDelay_Elapsed(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage);
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 public:	
 	// Called every frame

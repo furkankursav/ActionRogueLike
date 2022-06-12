@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "ActionRogueLike/Public/SMagicProjectile.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -39,7 +40,8 @@ ASCharacter::ASCharacter()
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
 void ASCharacter::MoveForward(float Value)
@@ -79,6 +81,11 @@ void ASCharacter::RotationVisualization()
 
 void ASCharacter::PrimaryAttack()
 {
+	if(CastingParticle)
+	{
+		UGameplayStatics::SpawnEmitterAttached(CastingParticle, GetMesh(), FName("Muzzle_01"));
+	}
+	
 	SpawnProjectile(MagicProjectileClass, MagicProjectileAttackMontage);
 }
 
@@ -138,6 +145,16 @@ void ASCharacter::AttackDelay_Elapsed(TSubclassOf<ASBaseProjectile> ProjectileCl
 		// spawning projectile
 		FTransform SpawnTM = FTransform(ProjRotation, HandLocation);
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	}
+}
+
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,
+	float Delta)
+{
+	
+	if(NewHealth <= 0.f && Delta < 0.0f)
+	{
+		DisableInput(Cast<APlayerController>(GetController()));
 	}
 }
 

@@ -4,8 +4,10 @@
 #include "ActionRogueLike/Public/SMagicProjectile.h"
 
 #include "SAttributeComponent.h"
+#include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
@@ -16,6 +18,8 @@ ASMagicProjectile::ASMagicProjectile()
 
 	
 	SphereComp->SetCollisionProfileName("Projectile");
+	FlightSound = CreateDefaultSubobject<UAudioComponent>(TEXT("FlightSound"));
+	FlightSound->SetupAttachment(GetRootComponent());
 	
 	
 	ProjectileMovementComp->InitialSpeed = 1000.f;
@@ -36,8 +40,14 @@ void ASMagicProjectile::BeginPlay()
 void ASMagicProjectile::SphereComp_OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if(ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), GetActorRotation());
+	}
+
+	UGameplayStatics::PlayWorldCameraShake(this, CameraShakeClass, GetActorLocation(), 100, 200);
+
 	Super::SphereComp_OnComponentHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
-	
 }
 
 void ASMagicProjectile::SphereComp_OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -48,9 +58,15 @@ void ASMagicProjectile::SphereComp_OnComponentBeginOverlap(UPrimitiveComponent* 
 
 	if(OtherActor && OtherActor != GetInstigator() && OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()))
 	{
+
+		if(ImpactSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), GetActorRotation());
+		}
+		
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 
-		AttributeComp->ApplyHealthChange(-20.f);
+		AttributeComp->ApplyHealthChange(-DamageAmount);
 
 		Destroy();
 	}

@@ -6,6 +6,10 @@
 #include "SBaseProjectile.h"
 #include "SMagicProjectile.generated.h"
 
+class UAudioComponent;
+class USoundBase;
+class UCameraShakeBase;
+
 
 UCLASS()
 class ACTIONROGUELIKE_API ASMagicProjectile : public ASBaseProjectile
@@ -17,6 +21,19 @@ public:
 	ASMagicProjectile();
 
 protected:
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float DamageAmount = 20.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UAudioComponent* FlightSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* ImpactSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UCameraShakeBase> CameraShakeClass;
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
