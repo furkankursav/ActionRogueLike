@@ -18,11 +18,12 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 
 	if(TargetAC)
 	{
-		if(TargetAC->GetHealth() != TargetAC->GetMaxHealth())
+		if(TargetAC->GetHealth() < TargetAC->GetMaxHealth())
 		{
 			TargetAC->ApplyHealthChange(HealthAmount);
+			Super::Interact_Implementation(InstigatorPawn);
 		}
 	}
 	
-	Super::Interact_Implementation(InstigatorPawn);
+	
 }
