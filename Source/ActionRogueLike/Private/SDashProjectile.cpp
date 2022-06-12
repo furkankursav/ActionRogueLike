@@ -2,44 +2,53 @@
 
 
 #include "SDashProjectile.h"
-
-#include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
-void ASDashProjectile::Teleport_Elapsed(APawn* InstigatorPawn)
+
+ASDashProjectile::ASDashProjectile()
 {
-	if(InstigatorPawn)
-	{
-		ProjectileMovementComp->StopMovementImmediately();
-		InstigatorPawn->GetMovementComponent()->StopMovementImmediately();
-		InstigatorPawn->TeleportTo(GetActorLocation(), InstigatorPawn->GetActorRotation(),false);
-		Destroy();
-	}
+	TeleportDelay = 0.2f;
+	DetonateDelay = 0.2f;
+
+	ProjectileMovementComp->InitialSpeed = 6000.f;
 }
 
-void ASDashProjectile::Explode_Elapsed()
-{
-	ProjectileMovementComp->StopMovementImmediately();
-	if(TeleportEmitter) UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TeleportEmitter, GetActorLocation(), GetActorRotation());
-	GetWorldTimerManager().ClearAllTimersForObject(this);
-	GetWorldTimerManager().SetTimer(Teleport_TimerHandle, Teleport_Delegate, 0.2f, false);
-}
 
 void ASDashProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Teleport_Delegate.BindUFunction(this, "Teleport_Elapsed", GetInstigator());
-	GetWorldTimerManager().SetTimer(Explode_TimerHandle, this, &ASDashProjectile::Explode_Elapsed, 0.2f, false);
+
+	GetWorldTimerManager().SetTimer(DelayedDetonate_TimerHandle, this, &ASDashProjectile::Explode, DetonateDelay);
 }
 
-void ASDashProjectile::SphereComp_OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+
+void ASDashProjectile::Explode_Implementation()
 {
-	Super::SphereComp_OnComponentHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
-	GetWorldTimerManager().ClearAllTimersForObject(this);
-	Explode_Elapsed();
-	
-	
+	GetWorldTimerManager().ClearTimer(DelayedDetonate_TimerHandle);
+
+	if(ImpactVFX)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
+	}
+
+	ParticleComp->DeactivateSystem();
+
+	ProjectileMovementComp->StopMovementImmediately();
+	SetActorEnableCollision(false);
+
+	FTimerHandle DelayedTeleport_TimerHandle;
+	GetWorldTimerManager().SetTimer(DelayedTeleport_TimerHandle, this, &ASDashProjectile::TeleportInstigator, TeleportDelay);
+}
+
+void ASDashProjectile::TeleportInstigator()
+{
+	AActor* ActorToTeleport = GetInstigator();
+
+	if(ActorToTeleport)
+	{
+		ActorToTeleport->TeleportTo(GetActorLocation(), ActorToTeleport->GetActorRotation(), false, false);
+	}
 }

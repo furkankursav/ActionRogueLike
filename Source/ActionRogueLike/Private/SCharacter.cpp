@@ -100,43 +100,43 @@ void ASCharacter::PrimaryInteract()
 	}
 }
 
-void ASCharacter::AttackDelay_Elapsed(TSubclassOf<ASProjectile> ProjectileClass, UAnimMontage* AttackMontage)
+void ASCharacter::AttackDelay_Elapsed(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage)
 {
 	if (ProjectileClass)
 	{
-		// Projectile spawn location
-		const FVector SpawnLoc = GetMesh()->GetSocketLocation(FName("Muzzle_01"));
-
-		// Selecting target location
-		FHitResult CameraHitResult;
-		// Start point is camera's world location
-		FVector CameraLoc = CameraComp->GetComponentLocation();
-		// End point is where camera is looking * 10000 times forward
-		FVector CameraEnd = CameraLoc + (CameraComp->GetComponentRotation().Vector() * 10000);
-
-		// Trace only will react to world dynamic and world static object types.
-		FCollisionObjectQueryParams CameraParams;
-		CameraParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		CameraParams.AddObjectTypesToQuery(ECC_WorldStatic);
-
-		// firing trace
-		bool bCameraHit = GetWorld()->LineTraceSingleByObjectType(CameraHitResult, CameraLoc, CameraEnd, CameraParams);
-
-		// if trace was hit chose impact point else, chose trace end location.
-		FVector DesiredTargetLoc = bCameraHit ? CameraHitResult.ImpactPoint : CameraHitResult.TraceEnd;
-
-		// calculating direction from spawn loc to target location
-		FRotator SpawnRot = UKismetMathLibrary::FindLookAtRotation(SpawnLoc, DesiredTargetLoc);
-
-		// debugging trace
-		FColor DebugColor = bCameraHit ? FColor::Green : FColor::Red;
-		//DrawDebugLine(GetWorld(), CameraLoc, DesiredTargetLoc, DebugColor, false, 2.f, 0, 2.f);
-
-		// spawning projectile
-		FTransform SpawnTM = FTransform(SpawnRot, SpawnLoc);
+		// Projectile spawn parameters
+		const FVector HandLocation = GetMesh()->GetSocketLocation(FName("Muzzle_01"));
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Instigator = this;
+
+		FCollisionShape Shape;
+		Shape.SetSphere(20.f);
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+		FCollisionObjectQueryParams ObjParams;
+		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjParams.AddObjectTypesToQuery(ECC_Pawn);
+
+		FVector TraceStart = CameraComp->GetComponentLocation();
+
+		FVector TraceEnd = TraceStart + GetControlRotation().Vector() * 5000.f;
+
+		FHitResult Hit;
+
+		if(GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, Params))
+		{
+			TraceEnd = Hit.ImpactPoint;
+		}
+
+		// find new direction/rotation from Hand Point to impact point in world.
+		FRotator ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+
+		// spawning projectile
+		FTransform SpawnTM = FTransform(ProjRotation, HandLocation);
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 	}
 }
@@ -172,7 +172,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 }
 
-void ASCharacter::SpawnProjectile(TSubclassOf<ASProjectile> ProjectileClass, UAnimMontage* AttackMontage, float WaitTime)
+void ASCharacter::SpawnProjectile(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage, float WaitTime)
 {
 	if(ProjectileClass)
 	{

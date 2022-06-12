@@ -10,7 +10,7 @@
 class URadialForceComponent;
 
 UCLASS()
-class ACTIONROGUELIKE_API ASBlackholeProjectile : public ASProjectile
+class ACTIONROGUELIKE_API ASBlackholeProjectile : public ASBaseProjectile
 {
 	GENERATED_BODY()
 	
@@ -26,6 +26,8 @@ protected:
 
 	virtual void SphereComp_OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+
+	virtual void SphereComp_OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	
 	// Called when the game starts or when spawned

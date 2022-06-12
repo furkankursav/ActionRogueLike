@@ -11,7 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class USInteractionComponent;
 class UAnimMontage;
-class ASProjectile;
+class ASBaseProjectile;
 class USAttributeComponent;
 
 UCLASS()
@@ -26,13 +26,13 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<ASProjectile> MagicProjectileClass;
+	TSubclassOf<ASBaseProjectile> MagicProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<ASProjectile> BlackholeProjectileClass;
+	TSubclassOf<ASBaseProjectile> BlackholeProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<ASProjectile> DashProjectileClass;
+	TSubclassOf<ASBaseProjectile> DashProjectileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* MagicProjectileAttackMontage;
@@ -77,7 +77,7 @@ protected:
 	FTimerDelegate AttackDelay_Delegate;
 
 	UFUNCTION()
-	void AttackDelay_Elapsed(TSubclassOf<ASProjectile> ProjectileClass, UAnimMontage* AttackMontage);
+	void AttackDelay_Elapsed(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage);
 
 public:	
 	// Called every frame
@@ -87,6 +87,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnProjectile(TSubclassOf<ASProjectile> ProjectileClass, UAnimMontage* AttackMontage, float WaitTime = 0.15f);
+	void SpawnProjectile(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage, float WaitTime = 0.15f);
 
 };

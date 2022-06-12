@@ -10,27 +10,31 @@
  * 
  */
 UCLASS()
-class ACTIONROGUELIKE_API ASDashProjectile : public ASProjectile
+class ACTIONROGUELIKE_API ASDashProjectile : public ASBaseProjectile
 {
 	GENERATED_BODY()
+public:
+	ASDashProjectile();
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float TeleportDelay;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Teleport")
+	float DetonateDelay;
+
+	FTimerHandle DelayedDetonate_TimerHandle;
+
+	virtual void Explode_Implementation() override;
+
+	void TeleportInstigator();
 
 	FTimerHandle Teleport_TimerHandle;
 	FTimerDelegate Teleport_Delegate;
 
 	FTimerHandle Explode_TimerHandle;
 
-	UPROPERTY(EditAnywhere, Category = "Teleport", meta=(AllowPrivateAccess = "true"))
-	class UParticleSystem* TeleportEmitter;
-	
-	UFUNCTION()
-	void Teleport_Elapsed(class APawn* InstigatorPawn);
-
-	UFUNCTION()
-	void Explode_Elapsed();
-
 	virtual void BeginPlay() override;
-
-	virtual void SphereComp_OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
+	
 };

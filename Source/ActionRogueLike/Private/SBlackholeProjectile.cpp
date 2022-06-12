@@ -25,13 +25,17 @@ void ASBlackholeProjectile::SphereComp_OnComponentBeginOverlap(UPrimitiveCompone
 	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	Super::SphereComp_OnComponentBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,
-	                                          SweepResult);
 
 	if(OtherComp->IsSimulatingPhysics())
 	{
 		OtherActor->Destroy();
 	}
+}
+
+void ASBlackholeProjectile::SphereComp_OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	
 }
 
 // Called when the game starts or when spawned
