@@ -41,6 +41,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float GetMaxHealth() const { return MaxHealth; }
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsFullHealth() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Attribute")
 	bool ApplyHealthChange(float Delta);
 };

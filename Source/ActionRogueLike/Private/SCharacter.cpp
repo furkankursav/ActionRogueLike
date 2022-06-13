@@ -33,6 +33,10 @@ ASCharacter::ASCharacter()
 	bUseControllerRotationYaw = false;
 
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
+
+	AttackAnimDelay = 0.2f;
+	HandSocketName = FName("Muzzle_01");
+	TimeToHitParamName = FName("TimeToHit");
 	
 }
 
@@ -83,20 +87,20 @@ void ASCharacter::PrimaryAttack()
 {
 	if(CastingParticle)
 	{
-		UGameplayStatics::SpawnEmitterAttached(CastingParticle, GetMesh(), FName("Muzzle_01"));
+		UGameplayStatics::SpawnEmitterAttached(CastingParticle, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 	}
 	
-	SpawnProjectile(MagicProjectileClass, MagicProjectileAttackMontage);
+	SpawnProjectile(MagicProjectileClass, MagicProjectileAttackMontage, AttackAnimDelay);
 }
 
 void ASCharacter::SecondaryAttack()
 {
-	SpawnProjectile(BlackholeProjectileClass, BlackholeProjectileAttackMontage);
+	SpawnProjectile(BlackholeProjectileClass, BlackholeProjectileAttackMontage, AttackAnimDelay);
 }
 
 void ASCharacter::TertiaryAttack()
 {
-	SpawnProjectile(DashProjectileClass, DashProjectileAttackMontage);
+	SpawnProjectile(DashProjectileClass, DashProjectileAttackMontage, AttackAnimDelay);
 }
 
 void ASCharacter::PrimaryInteract()
@@ -112,7 +116,7 @@ void ASCharacter::AttackDelay_Elapsed(TSubclassOf<ASBaseProjectile> ProjectileCl
 	if (ProjectileClass)
 	{
 		// Projectile spawn parameters
-		const FVector HandLocation = GetMesh()->GetSocketLocation(FName("Muzzle_01"));
+		const FVector HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.Instigator = this;
@@ -155,6 +159,11 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 	if(NewHealth <= 0.f && Delta < 0.0f)
 	{
 		DisableInput(Cast<APlayerController>(GetController()));
+	}
+
+	if(Delta < 0.f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
 	}
 }
 

@@ -56,8 +56,17 @@ protected:
 	USAttributeComponent* AttributeComp;
 
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	UParticleSystem* CastingParticle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects")
+	FName HandSocketName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects")
+	FName TimeToHitParamName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
+	float AttackAnimDelay;
 	
 	
 	// Called when the game starts or when spawned
@@ -94,6 +103,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable)
-	void SpawnProjectile(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage, float WaitTime = 0.15f);
+	void SpawnProjectile(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage, float WaitTime);
 
 };

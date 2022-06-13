@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SPowerUp.h"
+#include "SBasePowerup.h"
 #include "SHealthPotion.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ACTIONROGUELIKE_API ASHealthPotion : public ASPowerUp
+class ACTIONROGUELIKE_API ASHealthPotion : public ASBasePowerup
 {
 	GENERATED_BODY()
 
@@ -18,6 +18,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Power Up")
 	float HealthAmount;
+
+
 
 public:
 
