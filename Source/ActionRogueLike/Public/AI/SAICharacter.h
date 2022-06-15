@@ -10,6 +10,7 @@
 
 class UPawnSensingComponent;
 class USAttributeComponent;
+class USWorldUserWidget;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
@@ -22,6 +23,13 @@ public:
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<USWorldUserWidget> HealthBarWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	USWorldUserWidget* ActiveHealthBar;
+
+	void SetTargetActor(AActor* NewTarget);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	UPawnSensingComponent* PawnSensingComp;
@@ -36,7 +44,7 @@ protected:
 	void OnPawnSeen(APawn* Pawn);
 
 	UFUNCTION()
-	void OnAIHealthChanged(class AActor* InstigatorActor, USAttributeComponent* OwningComp, float Health, float Delta);
+	void OnAIHealthChanged(class AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 	virtual void PostInitializeComponents() override;
 

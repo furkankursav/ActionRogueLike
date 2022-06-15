@@ -19,11 +19,11 @@ void ASHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 		return;
 	}
 	
-	USAttributeComponent* TargetAC = Cast<USAttributeComponent>(InstigatorPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
+	USAttributeComponent* TargetAC =USAttributeComponent::GetAttributes(InstigatorPawn);
 
 	if(TargetAC && TargetAC->IsFullHealth() == false)
 	{
-		if(TargetAC->ApplyHealthChange(TargetAC->GetMaxHealth()))
+		if(TargetAC->ApplyHealthChange(this, HealthAmount))
 		{
 			HideAndCoolDownPowerup();
 		}

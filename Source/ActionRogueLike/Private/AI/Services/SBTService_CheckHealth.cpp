@@ -15,10 +15,10 @@ void USBTService_CheckHealth::TickNode(UBehaviorTreeComponent& OwnerComp, uint8*
 	const AAIController* AIController = OwnerComp.GetAIOwner();
 	if(AIController == nullptr) return;
 	
-	const APawn* AIPawn = AIController->GetPawn();
+	APawn* AIPawn = AIController->GetPawn();
 	if(AIPawn == nullptr) return;
 
-	const USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(AIPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
+	const USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(AIPawn);
 	if(AttributeComp == nullptr) return;
 
 	const bool bLowHealth = AttributeComp->IsAlive() && AttributeComp->GetHealth() < 30;

@@ -16,11 +16,11 @@ EBTNodeResult::Type USBTTaskNode_HealSelf::ExecuteTask(UBehaviorTreeComponent& O
 
 	if(AIPawn == nullptr) return EBTNodeResult::Type::Failed;
 
-	USAttributeComponent* AIAttributeComp = Cast<USAttributeComponent>(AIPawn->GetComponentByClass(USAttributeComponent::StaticClass()));
+	USAttributeComponent* AIAttributeComp = USAttributeComponent::GetAttributes(AIPawn);
 
 	if(AIAttributeComp == nullptr) return EBTNodeResult::Type::Failed;
 
-	AIAttributeComp->ApplyHealthChange(50);
+	AIAttributeComp->ApplyHealthChange(AIPawn, 50);
 
 	return EBTNodeResult::Type::Succeeded;
 }

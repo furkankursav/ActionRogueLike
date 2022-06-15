@@ -213,3 +213,8 @@ void ASCharacter::SpawnProjectile(TSubclassOf<ASBaseProjectile> ProjectileClass,
 	}
 }
 
+void ASCharacter::HealSelf(float Amount /* = 100*/)
+{
+	AttributeComp->ApplyHealthChange(this, Amount);
+}
+

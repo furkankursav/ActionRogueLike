@@ -56,17 +56,17 @@ void ASMagicProjectile::SphereComp_OnComponentBeginOverlap(UPrimitiveComponent* 
 	Super::SphereComp_OnComponentBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,
 	                                          SweepResult);
 
-	if(OtherActor && OtherActor != GetInstigator() && OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()))
+	if(OtherActor && OtherActor != GetInstigator() && USAttributeComponent::GetAttributes(OtherActor))
 	{
 
 		if(ImpactSound)
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), GetActorRotation());
 		}
+		USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
 		
-		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-
-		AttributeComp->ApplyHealthChange(-DamageAmount);
+		if(AttributeComp)
+			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
 
 		Destroy();
 	}

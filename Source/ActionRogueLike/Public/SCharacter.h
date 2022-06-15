@@ -105,4 +105,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnProjectile(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage, float WaitTime);
 
+	UFUNCTION(Exec)
+	void HealSelf(float Amount = 100);
+
 };

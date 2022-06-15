@@ -50,11 +50,11 @@ void ASExplosiveBarrel::OnStaticMeshCompHit(UPrimitiveComponent* HitComponent,
 
 	if(OtherActor)
 	{
-		 USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		 USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
 
 		if(AttributeComp)
 		{
-			AttributeComp->ApplyHealthChange(-30);
+			AttributeComp->ApplyHealthChange(this, -30);
 		}
 	}
 }
