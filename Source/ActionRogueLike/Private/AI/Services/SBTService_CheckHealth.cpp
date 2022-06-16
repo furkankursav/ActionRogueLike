@@ -7,21 +7,31 @@
 #include "SAttributeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
+
+USBTService_CheckHealth::USBTService_CheckHealth()
+{
+	LowHealthFraction = 0.3f;
+}
+
 void USBTService_CheckHealth::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	const AAIController* AIController = OwnerComp.GetAIOwner();
-	if(AIController == nullptr) return;
 	
-	APawn* AIPawn = AIController->GetPawn();
-	if(AIPawn == nullptr) return;
+	APawn* AIPawn =  OwnerComp.GetAIOwner()->GetPawn();
 
-	const USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(AIPawn);
-	if(AttributeComp == nullptr) return;
-
-	const bool bLowHealth = AttributeComp->IsAlive() && AttributeComp->GetHealth() < 30;
+	if(ensure(AIPawn))
+	{
+		const USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(AIPawn);
+		if(ensure(AttributeComp))
+		{
+			const bool bLowHealth = (AttributeComp->GetHealth() / AttributeComp->GetMaxHealth()) < LowHealthFraction;
+			OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool(IsLowHealthKey.SelectedKeyName, bLowHealth);
+		}
+	}
 	
-	OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool(IsLowHealthKey.SelectedKeyName, bLowHealth);
+	
 }
+
+
