@@ -48,6 +48,13 @@ void ASBaseProjectile::Explode_Implementation()
 		if(ImpactVFX)
 			UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
 
+		if(ImpactSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), GetActorRotation());
+		}
+
+		UGameplayStatics::PlayWorldCameraShake(this, CameraShakeClass, GetActorLocation(), 100, 200);
+
 		Destroy();
 	}
 }

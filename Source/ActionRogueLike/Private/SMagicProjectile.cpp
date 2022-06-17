@@ -4,6 +4,7 @@
 #include "ActionRogueLike/Public/SMagicProjectile.h"
 
 #include "SAttributeComponent.h"
+#include "SGameplayFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -40,12 +41,7 @@ void ASMagicProjectile::BeginPlay()
 void ASMagicProjectile::SphereComp_OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if(ImpactSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), GetActorRotation());
-	}
-
-	UGameplayStatics::PlayWorldCameraShake(this, CameraShakeClass, GetActorLocation(), 100, 200);
+	
 
 	Super::SphereComp_OnComponentHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
 }
@@ -56,19 +52,27 @@ void ASMagicProjectile::SphereComp_OnComponentBeginOverlap(UPrimitiveComponent* 
 	Super::SphereComp_OnComponentBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,
 	                                          SweepResult);
 
-	if(OtherActor && OtherActor != GetInstigator() && USAttributeComponent::GetAttributes(OtherActor))
+	// if(OtherActor && OtherActor != GetInstigator() && USAttributeComponent::GetAttributes(OtherActor))
+	// {
+	//
+	// 	if(ImpactSound)
+	// 	{
+	// 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), GetActorRotation());
+	// 	}
+	// 	USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
+	// 	
+	// 	if(AttributeComp)
+	// 		AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
+	//
+	// 	Destroy();
+	// }
+
+	if(OtherActor && OtherActor != GetInstigator())
 	{
-
-		if(ImpactSound)
+		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), GetActorRotation());
+			Explode();
 		}
-		USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
-		
-		if(AttributeComp)
-			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
-
-		Destroy();
 	}
 }
 

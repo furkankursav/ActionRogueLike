@@ -29,11 +29,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* FlightSound;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USoundBase* ImpactSound;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UCameraShakeBase> CameraShakeClass;
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -10,6 +10,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
@@ -20,6 +21,9 @@ ASAICharacter::ASAICharacter()
 
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	GetMesh()->SetGenerateOverlapEvents(true);
 
 	HitFlashTimeName = "HitFlashTime";
 
@@ -81,6 +85,9 @@ void ASAICharacter::OnAIHealthChanged(AActor* InstigatorActor, USAttributeCompon
 			GetCapsuleComponent()->DestroyComponent(false);
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
+
+			GetCharacterMovement()->DisableMovement();
+			
 			SetLifeSpan(10.f);
 		}
 		

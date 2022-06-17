@@ -5,6 +5,8 @@
 #include "ActionRogueLike/Public/SGameplayInterface.h"
 
 
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interaction Component"), ECVF_Cheat);
+
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
 {
@@ -36,6 +38,9 @@ void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void USInteractionComponent::PrimaryInteract()
 {
+
+	const bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
+	
 	//FHitResult Hit;
 	AActor* MyOwner = GetOwner();
 	float Radius = 60.f;
@@ -54,23 +59,26 @@ void USInteractionComponent::PrimaryInteract()
 	FColor DebugLineColor = bBlockingHit ? FColor::Green : FColor::Red;
 	for(FHitResult Hit : Hits)
 	{
+		if(bDebugDraw)
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, DebugLineColor, false, 2.f);
+		
 		if(AActor* HitActor = Hit.GetActor())
 		{
 			if(HitActor->Implements<USGameplayInterface>())
 			{
 				APawn* MyPawn = Cast<APawn>(MyOwner);
 				ISGameplayInterface::Execute_Interact(HitActor, MyPawn);
-				//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, DebugLineColor, false, 2.f);
+				
 				break;
 			}
 		}
-
+		
 	}
 
 	
 
-	
-	//DrawDebugLine(GetWorld(), EyeLocation, End, DebugLineColor, false, 2.f, 0, 5);
+	if(bDebugDraw)
+		DrawDebugLine(GetWorld(), EyeLocation, End, DebugLineColor, false, 2.f, 0, 5);
 
 	
 }
