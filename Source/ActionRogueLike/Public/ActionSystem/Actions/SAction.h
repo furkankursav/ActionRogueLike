@@ -34,7 +34,10 @@ protected:
 	bool bIsRunning;
 	
 public:
-	
+
+	/* Start suddenly when added to an action component */
+	UPROPERTY(EditDefaultsOnly, Category = "Action")
+	bool bAutoStart;
 	
 	UFUNCTION(BlueprintNativeEvent, Category = "Action")
 	void StartAction(AActor* Instigator);

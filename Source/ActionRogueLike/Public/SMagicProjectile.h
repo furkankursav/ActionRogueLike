@@ -10,6 +10,7 @@
 class UAudioComponent;
 class USoundBase;
 class UCameraShakeBase;
+class USActionEffect;
 
 
 UCLASS()
@@ -33,6 +34,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	FGameplayTag ParryTag;
+
+	UPROPERTY(EditDefaultsOnly, Category= "Effect")
+	TSubclassOf<USActionEffect> BurningActionEffectClass;
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

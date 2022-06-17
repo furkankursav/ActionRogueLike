@@ -3,7 +3,6 @@
 
 #include "ActionRogueLike/Public/SMagicProjectile.h"
 
-#include "SAttributeComponent.h"
 #include "SGameplayFunctionLibrary.h"
 #include "ActionSystem/SActionComponent.h"
 #include "Components/AudioComponent.h"
@@ -11,6 +10,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "ActionRogueLike/Public/ActionSystem/ActionEffect/SActionEffect.h"
 
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()
@@ -63,9 +63,16 @@ void ASMagicProjectile::SphereComp_OnComponentBeginOverlap(UPrimitiveComponent* 
 			return;
 		}
 
+		// Apply damage & Impulse
 		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
+			if(ActionComp)
+			{
+				ActionComp->AddAction(GetInstigator(), BurningActionEffectClass);
+			}
+			
 			Explode();
+			
 		}
 	}
 }
