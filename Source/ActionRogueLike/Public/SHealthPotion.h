@@ -19,6 +19,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Power Up")
 	float HealthAmount;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Power Up")
+	int32 CreditCost;
+
 
 
 public:
