@@ -7,6 +7,7 @@
 #include "BrainComponent.h"
 #include "SAttributeComponent.h"
 #include "SWorldUserWidget.h"
+#include "ActionSystem/SActionComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
@@ -21,6 +22,7 @@ ASAICharacter::ASAICharacter()
 
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
+	ActionComp = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComp"));
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);

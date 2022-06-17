@@ -5,6 +5,7 @@
 
 #include "SAttributeComponent.h"
 #include "SGameplayFunctionLibrary.h"
+#include "ActionSystem/SActionComponent.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -49,26 +50,19 @@ void ASMagicProjectile::SphereComp_OnComponentHit(UPrimitiveComponent* HitCompon
 void ASMagicProjectile::SphereComp_OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Super::SphereComp_OnComponentBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep,
-	                                          SweepResult);
-
-	// if(OtherActor && OtherActor != GetInstigator() && USAttributeComponent::GetAttributes(OtherActor))
-	// {
-	//
-	// 	if(ImpactSound)
-	// 	{
-	// 		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), GetActorRotation());
-	// 	}
-	// 	USAttributeComponent* AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
-	// 	
-	// 	if(AttributeComp)
-	// 		AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
-	//
-	// 	Destroy();
-	// }
-
+	
 	if(OtherActor && OtherActor != GetInstigator())
 	{
+		
+		
+		USActionComponent* ActionComp = OtherActor->FindComponentByClass<USActionComponent>();
+		if(ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag))
+		{
+			ProjectileMovementComp->Velocity *= -1;
+			SetInstigator(Cast<APawn>(OtherActor));
+			return;
+		}
+
 		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
 			Explode();

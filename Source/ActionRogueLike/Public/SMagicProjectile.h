@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "SBaseProjectile.h"
 #include "SMagicProjectile.generated.h"
 
@@ -23,13 +24,15 @@ public:
 protected:
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage")
 	float DamageAmount = 20.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UAudioComponent* FlightSound;
 
 
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	FGameplayTag ParryTag;
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
