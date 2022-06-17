@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "ActionRogueLike/Public/SMagicProjectile.h"
+#include "ActionSystem/SActionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -34,8 +35,8 @@ ASCharacter::ASCharacter()
 
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
 
-	AttackAnimDelay = 0.2f;
-	HandSocketName = FName("Muzzle_01");
+	ActionComp = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComp"));
+	
 	TimeToHitParamName = FName("TimeToHit");
 	
 }
@@ -67,6 +68,16 @@ void ASCharacter::MoveRight(float Value)
 	AddMovementInput(ControllerRightVector, Value);
 }
 
+void ASCharacter::SprintStart()
+{
+	ActionComp->StartActionByName(this, "Sprint");
+}
+
+void ASCharacter::SprintStop()
+{
+	ActionComp->StopActionByName(this, "Sprint");
+}
+
 void ASCharacter::RotationVisualization()
 {
 	const float DrawScale = 100.f;
@@ -85,22 +96,17 @@ void ASCharacter::RotationVisualization()
 
 void ASCharacter::PrimaryAttack()
 {
-	if(CastingParticle)
-	{
-		UGameplayStatics::SpawnEmitterAttached(CastingParticle, GetMesh(), HandSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
-	}
-	
-	SpawnProjectile(MagicProjectileClass, MagicProjectileAttackMontage, AttackAnimDelay);
+	ActionComp->StartActionByName(this, "ProjectileAttack_Magic");
 }
 
 void ASCharacter::SecondaryAttack()
 {
-	SpawnProjectile(BlackholeProjectileClass, BlackholeProjectileAttackMontage, AttackAnimDelay);
+	ActionComp->StartActionByName(this, "ProjectileAttack_BlackHole");
 }
 
 void ASCharacter::TertiaryAttack()
 {
-	SpawnProjectile(DashProjectileClass, DashProjectileAttackMontage, AttackAnimDelay);
+	ActionComp->StartActionByName(this, "ProjectileAttack_Dash");
 }
 
 void ASCharacter::PrimaryInteract()
@@ -111,46 +117,6 @@ void ASCharacter::PrimaryInteract()
 	}
 }
 
-void ASCharacter::AttackDelay_Elapsed(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage)
-{
-	if (ProjectileClass)
-	{
-		// Projectile spawn parameters
-		const FVector HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Instigator = this;
-
-		FCollisionShape Shape;
-		Shape.SetSphere(20.f);
-
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-
-		FCollisionObjectQueryParams ObjParams;
-		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		ObjParams.AddObjectTypesToQuery(ECC_Pawn);
-
-		FVector TraceStart = CameraComp->GetComponentLocation();
-
-		FVector TraceEnd = TraceStart + GetControlRotation().Vector() * 5000.f;
-
-		FHitResult Hit;
-
-		if(GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, Params))
-		{
-			TraceEnd = Hit.ImpactPoint;
-		}
-
-		// find new direction/rotation from Hand Point to impact point in world.
-		FRotator ProjRotation = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
-
-		// spawning projectile
-		FTransform SpawnTM = FTransform(ProjRotation, HandLocation);
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
-	}
-}
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,
 	float Delta)
@@ -201,22 +167,11 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
 
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASCharacter::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASCharacter::SprintStop);
+
 }
 
-void ASCharacter::SpawnProjectile(TSubclassOf<ASBaseProjectile> ProjectileClass, UAnimMontage* AttackMontage, float WaitTime)
-{
-	if(ProjectileClass)
-	{
-
-		if (AttackMontage)
-		{
-			PlayAnimMontage(AttackMontage);
-		}
-		
-		AttackDelay_Delegate.BindUFunction(this, "AttackDelay_Elapsed", ProjectileClass, AttackMontage);
-		GetWorldTimerManager().SetTimer(AttackDelay_TimerHandle, AttackDelay_Delegate, WaitTime, false);
-	}
-}
 
 void ASCharacter::HealSelf(float Amount /* = 100*/)
 {
