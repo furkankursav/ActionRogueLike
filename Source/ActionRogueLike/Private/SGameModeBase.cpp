@@ -60,9 +60,9 @@ void ASGameModeBase::KillAll()
 void ASGameModeBase::SpawnBotsTimerElapsed()
 {
 
-	if(CVarSpawnBots.GetValueOnGameThread() == false)
+	if(CVarSpawnBots.GetValueOnGameThread() == false || bCanSpawnBots == false)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("bot spawning disabled via cvar 'CVarSpawnBots' ."))
+		//UE_LOG(LogTemp, Warning, TEXT("bot spawning disabled via cvar 'CVarSpawnBots' ."))
 		return;
 	}
 

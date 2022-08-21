@@ -3,6 +3,7 @@
 
 #include "ActionRogueLike/Public/ASItemChest.h"
 #include "Components/StaticMeshComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AASItemChest::AASItemChest()
@@ -18,7 +19,11 @@ AASItemChest::AASItemChest()
 
 	TargetPitch = 110.f;
 
+	SetReplicates(true);
+
 }
+
+
 
 // Called when the game starts or when spawned
 void AASItemChest::BeginPlay()
@@ -36,8 +41,23 @@ void AASItemChest::Tick(float DeltaTime)
 
 void AASItemChest::Interact_Implementation(APawn* InstigatorPawn)
 {
-	ISGameplayInterface::Interact_Implementation(InstigatorPawn);
+	bLidOpened = !bLidOpened;
+	OnRep_LidChanged();
+}
 
-	LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0.f, 0.f));
+
+
+void AASItemChest::OnRep_LidChanged()
+{
+	const float NewPitch = bLidOpened ? 0.f : 110.f;
+	LidMesh->SetRelativeRotation(FRotator(NewPitch, 0.f, 0.f));
+}
+
+
+void AASItemChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, bLidOpened);
 }
 

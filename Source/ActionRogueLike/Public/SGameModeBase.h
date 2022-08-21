@@ -54,7 +54,8 @@ protected:
 	UFUNCTION()
 	void SpawnBotsTimerElapsed();
 
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawner")
+	bool bCanSpawnBots;
 
 	UFUNCTION()
 	void OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);

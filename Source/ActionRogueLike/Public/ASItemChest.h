@@ -31,14 +31,23 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* LidMesh;
+
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_LidChanged", BlueprintReadOnly, VisibleAnywhere)
+	bool bLidOpened = false;
+
+	UFUNCTION()
+	void OnRep_LidChanged();
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
+public:
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 };
