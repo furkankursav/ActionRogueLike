@@ -28,6 +28,7 @@ ASMagicProjectile::ASMagicProjectile()
 	ProjectileMovementComp->bRotationFollowsVelocity = true;
 	ProjectileMovementComp->bInitialVelocityInLocalSpace = true;
 
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned

@@ -27,6 +27,8 @@ ASBaseProjectile::ASBaseProjectile()
 	ProjectileMovementComp->ProjectileGravityScale = 0.f;
 	ProjectileMovementComp->InitialSpeed = 8000.f;
 
+	SetReplicates(true);
+
 }
 
 void ASBaseProjectile::SphereComp_OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,

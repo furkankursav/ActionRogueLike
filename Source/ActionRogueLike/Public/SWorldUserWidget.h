@@ -28,7 +28,7 @@ protected:
 
 public:
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (ExposeOnSpawn))
 	AActor* AttachedActor;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
