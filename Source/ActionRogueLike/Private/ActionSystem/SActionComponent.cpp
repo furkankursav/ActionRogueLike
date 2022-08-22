@@ -33,8 +33,8 @@ void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	const FString DebugMessage = GetNameSafe(GetOwner()) + ": " +ActiveGameplayTags.ToStringSimple();
-	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::White, DebugMessage);
+	// const FString DebugMessage = GetNameSafe(GetOwner()) + ": " +ActiveGameplayTags.ToStringSimple();
+	// GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::White, DebugMessage);
 	
 }
 

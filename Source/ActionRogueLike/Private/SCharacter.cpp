@@ -125,6 +125,7 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 	if(NewHealth <= 0.f && Delta < 0.0f)
 	{
 		DisableInput(Cast<APlayerController>(GetController()));
+		SetLifeSpan(5.f);
 	}
 
 	if(Delta < 0.f)
