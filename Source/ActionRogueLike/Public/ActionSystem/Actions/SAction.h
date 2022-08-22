@@ -31,10 +31,17 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	USActionComponent* GetOwningActionComponent() const;
 
+	UPROPERTY(ReplicatedUsing="OnRep_IsRunning")
 	bool bIsRunning;
+
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Action")
+	class USActionComponent* ActionComp;
 	
 public:
 
+
+	void Initialize(class USActionComponent* NewActionComp);
+	
 	/* Start suddenly when added to an action component */
 	UPROPERTY(EditDefaultsOnly, Category = "Action")
 	bool bAutoStart;
@@ -56,4 +63,12 @@ public:
 	FName ActionName;
 
 	virtual UWorld* GetWorld() const override;
+
+	UFUNCTION()
+	void OnRep_IsRunning();
+
+	virtual bool IsSupportedForNetworking() const override
+	{
+		return true;
+	}
 };

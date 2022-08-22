@@ -39,7 +39,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Actions")
 	TArray<TSubclassOf<USAction>> DefaultActions;
 	
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<USAction*> Actions;
 	
 	virtual void BeginPlay() override;
@@ -52,5 +52,5 @@ public:
 
 	USAction* GetActionByClass(TSubclassOf<USAction> ActionClass) const;
 
-		
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 };
