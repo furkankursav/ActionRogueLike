@@ -13,6 +13,8 @@ class USAttributeComponent;
 class USWorldUserWidget;
 class USActionComponent;
 
+#define BB_NAME_TargetActorKey FName("TargetActor")
+
 UCLASS()
 class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
 {
@@ -26,6 +28,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<USWorldUserWidget> HealthBarWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<USWorldUserWidget> SpottedWidgetClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 	USWorldUserWidget* ActiveHealthBar;
@@ -51,5 +56,8 @@ protected:
 	void OnAIHealthChanged(class AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 	virtual void PostInitializeComponents() override;
+
+	AActor* GetTargetActor() const;
+
 
 };

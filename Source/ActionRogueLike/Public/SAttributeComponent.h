@@ -6,7 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "SAttributeComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, InstigatorActor, class USAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAttributeChanged, AActor*, InstigatorActor, class USAttributeComponent*, OwningComp, float, NewValue, float, Delta);
+
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -33,6 +34,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float MaxHealth;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
+	float Rage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
+	float MaxRage;
+
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -42,7 +49,10 @@ public:
 	bool Kill(AActor* InstigatorActor);
 
 	UPROPERTY(BlueprintAssignable)
-	FOnHealthChanged OnHealthChanged;
+	FOnAttributeChanged OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChanged OnRageChanged;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float GetHealth() const { return Health;}
@@ -54,16 +64,35 @@ public:
 	float GetHealthRatio() const { return Health / MaxHealth;}
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool IsFullHealth() const;
+	FORCEINLINE bool IsFullHealth() const { return Health == MaxHealth;}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE float GetRage() const { return Rage; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE float GetMaxRage() const { return MaxRage; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE float GetRageRatio() const { return Rage / MaxRage;}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE bool IsFullRage() const { return Rage == MaxRage;}
+	
 
 	UFUNCTION(BlueprintCallable, Category = "Attribute")
 	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
+
+	UFUNCTION(BlueprintCallable, Category = "Attribute")
+	bool ApplyRageChange(AActor* InstigatorActor, float Delta);
 
 
 	
 	
 	UFUNCTION(NetMulticast, Reliable) //@FIXME: mark as unrealiable once we moved the 'state' our of character
 	void MulticastHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRageChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewRage, float Delta);
 
 	
 };

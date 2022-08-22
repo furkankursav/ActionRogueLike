@@ -38,6 +38,21 @@ void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	
 }
 
+USAction* USActionComponent::GetActionByClass(TSubclassOf<USAction> ActionClass) const
+{
+	if(IsValid(ActionClass) == false) return nullptr;
+	
+	for(USAction* Action : Actions)
+	{
+		if(Action && Action->IsA(ActionClass))
+		{
+			return Action;
+		}
+	}
+
+	return nullptr;
+}
+
 void USActionComponent::AddAction(AActor* Instigator, TSubclassOf<USAction> ActionClass)
 {
 	if(!ensure(ActionClass))

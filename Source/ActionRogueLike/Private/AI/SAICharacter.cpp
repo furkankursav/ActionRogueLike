@@ -39,14 +39,28 @@ void ASAICharacter::SetTargetActor(AActor* NewTarget)
 
 	if(AIC)
 	{
-		AIC->GetBlackboardComponent()->SetValueAsObject(FName("TargetActor"), NewTarget);
+		AIC->GetBlackboardComponent()->SetValueAsObject(BB_NAME_TargetActorKey, NewTarget);
 	}
 }
 
 void ASAICharacter::OnPawnSeen(APawn* Pawn)
 {
-	SetTargetActor(Pawn);
-	DrawDebugString(GetWorld(), Pawn->GetActorLocation(), TEXT("PLAYER SPOTTED"), nullptr, FColor::Red, 4.f, true);
+
+
+	if(GetTargetActor() != Pawn)
+	{
+		SetTargetActor(Pawn);
+
+		if(IsValid(SpottedWidgetClass) == false) return;
+		
+		USWorldUserWidget* SpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
+
+		if(SpottedWidget)
+		{
+			SpottedWidget->AttachedActor = this;
+			SpottedWidget->AddToViewport(10);
+		}
+	}
 }
 
 void ASAICharacter::OnAIHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,
@@ -104,5 +118,17 @@ void ASAICharacter::PostInitializeComponents()
 
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ASAICharacter::OnPawnSeen);
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnAIHealthChanged);
+}
+
+AActor* ASAICharacter::GetTargetActor() const
+{
+	AAIController* AIC = Cast<AAIController>(GetController());
+
+	if(AIC)
+	{
+		return Cast<AActor>(AIC->GetBlackboardComponent()->GetValueAsObject(BB_NAME_TargetActorKey));
+	}
+
+	return nullptr;
 }
 

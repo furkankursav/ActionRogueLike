@@ -11,6 +11,7 @@ USAction_ProjectileAttack::USAction_ProjectileAttack()
 {
 	HandSocketName = "Muzzle_01";
 	AttackAnimDelay = 0.2f;
+	
 }
 
 void USAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator)
