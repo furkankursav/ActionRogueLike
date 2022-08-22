@@ -7,9 +7,13 @@
 #include "SBasePowerup.h"
 #include "SCharacter.h"
 #include "SPlayerState.h"
+#include "SSaveGame.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "AI/SAICharacter.h"
+#include "GameFramework/GameStateBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via table"), ECVF_Cheat);
@@ -23,6 +27,15 @@ ASGameModeBase::ASGameModeBase()
 	RequiredPowerupDistance = 2000;
 
 	PlayerStateClass = ASPlayerState::StaticClass();
+
+	SaveSlotName = "SaveGame01";
+}
+
+void ASGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	LoadSaveGame();
 }
 
 void ASGameModeBase::StartPlay()
@@ -44,6 +57,19 @@ void ASGameModeBase::StartPlay()
 	}
 }
 
+void ASGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+
+	ASPlayerState* PS = Cast<ASPlayerState>(NewPlayer->PlayerState);
+
+	if(PS)
+	{
+		PS->LoadPlayerState(CurrentSaveGame);
+	}
+}
+
+
 void ASGameModeBase::KillAll()
 {
 	for(TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
@@ -56,6 +82,8 @@ void ASGameModeBase::KillAll()
 		}
 	}
 }
+
+
 
 void ASGameModeBase::SpawnBotsTimerElapsed()
 {
@@ -219,3 +247,98 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 		}
 	}
 }
+
+void ASGameModeBase::WriteSaveGame()
+{
+	for (TObjectPtr<APlayerState> UnrealPlayerState : GameState->PlayerArray)
+	{
+		if(ASPlayerState* PS = Cast<ASPlayerState>(UnrealPlayerState))
+		{
+			PS->SavePlayerState(CurrentSaveGame);
+			break; // single player only at this point
+		}
+	}
+
+	CurrentSaveGame->SavedActors.Empty();
+
+	for(FActorIterator It(GetWorld()); It; ++It)
+	{
+		AActor* NextActor = *It;
+		if(NextActor->IsPendingKillPending() || NextActor->Implements<USGameplayInterface>() == false)
+		{
+			continue;
+		}
+		FActorSaveData ActorSaveData;
+		ActorSaveData.ActorName = NextActor->GetName();
+		ActorSaveData.ActorTransform = NextActor->GetTransform();
+
+		// Pass the array to fill with data from Actor
+		FMemoryWriter MemWriter(ActorSaveData.ByteData);
+		
+		FObjectAndNameAsStringProxyArchive Ar(MemWriter, true);
+		
+		// Find only variables with UPROPERTY(SaveGame)
+		Ar.ArIsSaveGame = true;
+
+		// Coverts Actor's SaveGame UPROPERTIES into binary array.
+		NextActor->Serialize(Ar);
+		
+		CurrentSaveGame->SavedActors.Add(ActorSaveData);
+	}
+
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SaveSlotName, 0);
+	
+}
+
+void ASGameModeBase::LoadSaveGame()
+{
+	if(UGameplayStatics::DoesSaveGameExist(SaveSlotName, 0))
+	{
+		CurrentSaveGame = Cast<USSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+
+		if(CurrentSaveGame == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to load SaveGame data."));
+			return;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Loaded SaveGame data."));
+
+		for(FActorIterator It(GetWorld()); It; ++It)
+		{
+			AActor* NextActor = *It;
+			if(NextActor->IsPendingKillPending() || NextActor->Implements<USGameplayInterface>() == false)
+			{
+				continue;
+			}
+
+			for(FActorSaveData NextData : CurrentSaveGame->SavedActors)
+			{
+				if(NextData.ActorName == NextActor->GetName())
+				{
+					NextActor->SetActorTransform(NextData.ActorTransform);
+
+					FMemoryReader MemReader(NextData.ByteData);
+
+					FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
+					Ar.ArIsSaveGame = true;
+					// Covert binary array back into Actor's variables.
+					NextActor->Serialize(Ar);
+
+					ISGameplayInterface::Execute_OnSaveableActorLoaded(NextActor);
+					break;
+				}
+			}
+		}
+	}
+
+	else
+	{
+		CurrentSaveGame = Cast<USSaveGame>(UGameplayStatics::CreateSaveGameObject(USSaveGame::StaticClass()));
+		UE_LOG(LogTemp, Warning, TEXT("Created New SaveGame data."));
+	}
+
+
+}
+
+

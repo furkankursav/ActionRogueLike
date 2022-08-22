@@ -32,8 +32,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* LidMesh;
 
-	UPROPERTY(Replicated, ReplicatedUsing="OnRep_LidChanged", BlueprintReadOnly, VisibleAnywhere)
-	bool bLidOpened = false;
+	UPROPERTY(Replicated, ReplicatedUsing="OnRep_LidChanged", BlueprintReadOnly, VisibleAnywhere, SaveGame)
+	bool bLidOpened;
 
 	UFUNCTION()
 	void OnRep_LidChanged();
@@ -47,6 +47,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
+
+	virtual void OnSaveableActorLoaded_Implementation() override;
 
 public:
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;

@@ -2,6 +2,8 @@
 
 
 #include "SPlayerState.h"
+
+#include "SSaveGame.h"
 #include "Net/UnrealNetwork.h"
 
 ASPlayerState::ASPlayerState()
@@ -48,6 +50,8 @@ void ASPlayerState::OnRep_CredistChanged(int32 Delta)
 }
 
 
+
+
 int32 ASPlayerState::GetCredits() const
 {
 	return Credits;
@@ -58,4 +62,20 @@ void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, Credits);
+}
+
+void ASPlayerState::SavePlayerState_Implementation(USSaveGame* SaveObject)
+{
+	if(SaveObject)
+	{
+		SaveObject->Credits = Credits;
+	}
+}
+
+void ASPlayerState::LoadPlayerState_Implementation(USSaveGame* SaveObject)
+{
+	if(SaveObject)
+	{
+		Credits = SaveObject->Credits;
+	}
 }

@@ -74,8 +74,24 @@ public:
 	
 	virtual void StartPlay() override;
 
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
 	UFUNCTION(Exec)
 	void KillAll();
+
+	UFUNCTION(BlueprintCallable, Category = "Save Game")
+	void WriteSaveGame();
+
+	UFUNCTION(BlueprintCallable, Category = "Save Game")
+	void LoadSaveGame();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Save Game")
+	class USSaveGame* CurrentSaveGame;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Save Game")
+	FString SaveSlotName;
+
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 };
 
 

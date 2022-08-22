@@ -45,11 +45,15 @@ void AASItemChest::Interact_Implementation(APawn* InstigatorPawn)
 	OnRep_LidChanged();
 }
 
+void AASItemChest::OnSaveableActorLoaded_Implementation()
+{
+	OnRep_LidChanged();
+}
 
 
 void AASItemChest::OnRep_LidChanged()
 {
-	const float NewPitch = bLidOpened ? 0.f : 110.f;
+	const float NewPitch = bLidOpened ? 110.f : 0.f;
 	LidMesh->SetRelativeRotation(FRotator(NewPitch, 0.f, 0.f));
 }
 

@@ -40,4 +40,12 @@ public:
 
 	UFUNCTION()
 	void OnRep_CredistChanged(int32 Delta);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void SavePlayerState(class USSaveGame* SaveObject);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void LoadPlayerState(class USSaveGame* SaveObject);
+
+	
 };
