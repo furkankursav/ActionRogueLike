@@ -53,6 +53,8 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 
 	if(GetOwner()->CanBeDamaged() == false && Delta < 0.0f) return false;
 
+
+	
 	if(Delta < 0.0f)
 	{
 		const float DamageMultiplier = CVarDamageMultiplier.GetValueOnGameThread();
@@ -60,23 +62,28 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	}
 	
 	const float OldHealth = Health;
-	
-	Health = FMath::Clamp(Health + Delta, 0, MaxHealth);
-
-	const float ActualDelta = Health - OldHealth;
-	if(ActualDelta != 0.f)
+	const float NewHealth = FMath::Clamp(Health + Delta, 0, MaxHealth);
+	const float ActualDelta = NewHealth - OldHealth;
+	// Is Server?
+	if(GetOwner()->HasAuthority())
 	{
-		MulticastHealthChanged(InstigatorActor, this, Health, Delta);
-	}
-	//OnHealthChanged.Broadcast(InstigatorActor, this, Health, Delta);
-	// Died
-	if(ActualDelta < 0.f && Health <= 0.f)
-	{
-		ASGameModeBase* GMBase = GetWorld()->GetAuthGameMode<ASGameModeBase>();
+		Health = NewHealth;
 
-		if(GMBase)
+		if(ActualDelta != 0.f)
 		{
-			GMBase->OnActorKilled(GetOwner(), InstigatorActor);
+			MulticastHealthChanged(InstigatorActor, this, Health, Delta);
+		}
+
+		// Died
+		if(ActualDelta < 0.f && Health <= 0.f)
+		{
+			// Game mode only exits on server.
+			ASGameModeBase* GMBase = GetWorld()->GetAuthGameMode<ASGameModeBase>();
+
+			if(GMBase)
+			{
+				GMBase->OnActorKilled(GetOwner(), InstigatorActor);
+			}
 		}
 	}
 	

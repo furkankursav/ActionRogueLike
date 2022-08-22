@@ -10,6 +10,15 @@
 
 class USActionComponent;
 
+USTRUCT(BlueprintType)
+struct FActionRepData
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY() bool bIsRunning;
+	UPROPERTY() AActor* Instigator;
+};
+
 /**
  * 
  */
@@ -31,8 +40,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Action")
 	USActionComponent* GetOwningActionComponent() const;
 
-	UPROPERTY(ReplicatedUsing="OnRep_IsRunning")
-	bool bIsRunning;
+	UPROPERTY(ReplicatedUsing="OnRep_RepData")
+	FActionRepData RepData;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Action")
 	class USActionComponent* ActionComp;
@@ -65,7 +74,7 @@ public:
 	virtual UWorld* GetWorld() const override;
 
 	UFUNCTION()
-	void OnRep_IsRunning();
+	void OnRep_RepData();
 
 	virtual bool IsSupportedForNetworking() const override
 	{

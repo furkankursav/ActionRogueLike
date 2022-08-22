@@ -67,12 +67,18 @@ void ASMagicProjectile::SphereComp_OnComponentBeginOverlap(UPrimitiveComponent* 
 		// Apply damage & Impulse
 		if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 		{
-			if(ActionComp)
+
+			Explode();
+
+			if (HasAuthority())
 			{
-				ActionComp->AddAction(GetInstigator(), BurningActionEffectClass);
+				if(ActionComp)
+				{
+					ActionComp->AddAction(GetInstigator(), BurningActionEffectClass);
+				}
 			}
 			
-			Explode();
+			
 			
 		}
 	}
