@@ -23,6 +23,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Powerup")
 	float RespawnTime;
 
+	UPROPERTY(ReplicatedUsing="OnRep_IsActive")
+	bool bIsActive;
+
+	UFUNCTION()
+	void OnRep_IsActive();
+
 	FTimerHandle Respawn_TimerHandle;
 
 	UFUNCTION()

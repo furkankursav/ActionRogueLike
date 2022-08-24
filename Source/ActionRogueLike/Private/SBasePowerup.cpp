@@ -3,6 +3,7 @@
 
 #include "SBasePowerup.h"
 #include "Components/SphereComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASBasePowerup::ASBasePowerup()
@@ -25,6 +26,12 @@ ASBasePowerup::ASBasePowerup()
 }
 
 
+void ASBasePowerup::OnRep_IsActive()
+{
+	SetActorEnableCollision(bIsActive);
+	RootComponent->SetVisibility(bIsActive, true);
+}
+
 void ASBasePowerup::ShowPowerup()
 {
 	SetPowerupState(true);
@@ -43,6 +50,8 @@ void ASBasePowerup::SetPowerupState(bool bNewIsActive)
 	
 	RootComponent->SetVisibility(bNewIsActive, true);
 	MeshComp->SetVisibility(bNewIsActive, true);
+
+	OnRep_IsActive();
 }
 
 void ASBasePowerup::Interact_Implementation(APawn* InstigatorPawn)
@@ -50,3 +59,9 @@ void ASBasePowerup::Interact_Implementation(APawn* InstigatorPawn)
 	// logic in derived classes..
 }
 
+void ASBasePowerup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, bIsActive);
+}

@@ -59,7 +59,7 @@ void ASGameModeBase::StartPlay()
 
 void ASGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+	
 
 	ASPlayerState* PS = Cast<ASPlayerState>(NewPlayer->PlayerState);
 
@@ -67,6 +67,8 @@ void ASGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* N
 	{
 		PS->LoadPlayerState(CurrentSaveGame);
 	}
+
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 }
 
 

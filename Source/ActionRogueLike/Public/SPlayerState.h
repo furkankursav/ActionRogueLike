@@ -19,7 +19,7 @@ class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 
 protected:
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Replicated, ReplicatedUsing="OnRep_CredistChanged", Category = "Credits")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, ReplicatedUsing="OnRep_CredistChanged", Category = "Credits")
 	int32 Credits;
 
 public:

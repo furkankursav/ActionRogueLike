@@ -51,8 +51,16 @@ void ASAICharacter::OnPawnSeen(APawn* Pawn)
 	{
 		SetTargetActor(Pawn);
 
-		if(IsValid(SpottedWidgetClass) == false) return;
+		MulticastPawnSeen();
+
 		
+	}
+}
+
+void ASAICharacter::MulticastPawnSeen_Implementation()
+{
+	if(IsValid(SpottedWidgetClass))
+	{
 		USWorldUserWidget* SpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), SpottedWidgetClass);
 
 		if(SpottedWidget)
@@ -61,10 +69,11 @@ void ASAICharacter::OnPawnSeen(APawn* Pawn)
 			SpottedWidget->AddToViewport(10);
 		}
 	}
+	
 }
 
 void ASAICharacter::OnAIHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,
-	float Delta)
+                                      float Delta)
 {
 
 	if(Delta < 0.0f)

@@ -76,6 +76,8 @@ void ASPlayerState::LoadPlayerState_Implementation(USSaveGame* SaveObject)
 {
 	if(SaveObject)
 	{
-		Credits = SaveObject->Credits;
+		//Credits = SaveObject->Credits;
+		// for trigger multiplayer
+		AddCredits(SaveObject->Credits);
 	}
 }

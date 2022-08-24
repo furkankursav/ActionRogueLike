@@ -91,7 +91,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable) //@FIXME: mark as unrealiable once we moved the 'state' our of character
 	void MulticastHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRageChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewRage, float Delta);
 
 	
