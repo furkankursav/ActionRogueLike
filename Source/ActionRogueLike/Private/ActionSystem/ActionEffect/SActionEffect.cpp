@@ -4,6 +4,7 @@
 #include "ActionSystem/ActionEffect/SActionEffect.h"
 
 #include "ActionSystem/SActionComponent.h"
+#include "GameFramework/GameStateBase.h"
 
 USActionEffect::USActionEffect()
 {
@@ -20,15 +21,17 @@ void USActionEffect::StartAction_Implementation(AActor* Instigator)
 		Delegate.BindUFunction(this, "StopAction", Instigator);
 
 		GetWorld()->GetTimerManager().SetTimer(DurationHandle, Delegate, Duration, false);
+
+		if(Period > 0.0f)
+		{
+			FTimerDelegate PeriodDelegate;
+			PeriodDelegate.BindUFunction(this, "ExecutePeriodEffect", Instigator);
+		
+			GetWorld()->GetTimerManager().SetTimer(PeriodHandle, PeriodDelegate, Period, true);
+		}
 	}
 
-	if(Period > 0.0f)
-	{
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, "ExecutePeriodEffect", Instigator);
-		
-		GetWorld()->GetTimerManager().SetTimer(PeriodHandle, Delegate, Period, true);
-	}
+	
 }
 
 void USActionEffect::StopAction_Implementation(AActor* Instigator)
@@ -49,6 +52,21 @@ void USActionEffect::StopAction_Implementation(AActor* Instigator)
 	{
 		GetOwningActionComponent()->RemoveAction(this);
 	}
+}
+
+float USActionEffect::GetTimeRemaining() const
+{
+
+	AGameStateBase* GS = GetWorld()->GetGameState<AGameStateBase>();
+
+	if(GS)
+	{
+		const float EndTime = ActionStartTime + Duration;
+
+		return EndTime - GS->GetServerWorldTimeSeconds();
+	}
+	
+	return Duration;
 }
 
 

@@ -45,6 +45,12 @@ protected:
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = "Action")
 	class USActionComponent* ActionComp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	UTexture2D* Icon;
+
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	float ActionStartTime;
 	
 public:
 
@@ -72,6 +78,8 @@ public:
 	FName ActionName;
 
 	virtual UWorld* GetWorld() const override;
+
+
 
 	UFUNCTION()
 	void OnRep_RepData();

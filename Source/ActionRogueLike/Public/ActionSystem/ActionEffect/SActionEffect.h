@@ -21,6 +21,9 @@ public:
 	
 	virtual void StartAction_Implementation(AActor* Instigator) override;
 	virtual void StopAction_Implementation(AActor* Instigator) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	virtual float GetTimeRemaining() const;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
