@@ -6,11 +6,15 @@
 #include "SAttributeComponent.h"
 #include "SBasePowerup.h"
 #include "SCharacter.h"
+#include "SMonsterData.h"
 #include "SPlayerState.h"
 #include "SSaveGame.h"
+#include "ActionRogueLike/ActionRogueLike.h"
+#include "ActionSystem/SActionComponent.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "AI/SAICharacter.h"
+#include "Engine/AssetManager.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
@@ -148,14 +152,77 @@ void ASGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper*
 
 	if(FoundLocations.Num() > 0 && FoundLocations.IsValidIndex(0))
 	{
-		GetWorld()->SpawnActor<AActor>(MinionRangedClass, FoundLocations[0], FRotator::ZeroRotator);
-		DrawDebugSphere(GetWorld(), FoundLocations[0], 50, 20, FColor::Blue, false, 60.f);
+
+		if(MonsterTable)
+		{
+			TArray<FMonsterInfoRow*> Rows;
+			MonsterTable->GetAllRows("", Rows);
+
+			if(Rows.Num() > 0)
+			{
+				const int32 RandRowIndex = FMath::RandRange(0, Rows.Num() - 1);
+				FMonsterInfoRow* SelectedRow = Rows[RandRowIndex];
+
+				if(SelectedRow)
+				{
+
+					UAssetManager* MyAssetManager = UAssetManager::GetIfValid();
+
+					if(MyAssetManager)
+					{
+						LogOnScreen(this, "Monster Loading...", FColor::Green);
+						TArray<FName> Bundles;
+						FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ThisClass::OnMonsterLoaded, SelectedRow->MonsterDataID, FoundLocations[0]);
+						MyAssetManager->LoadPrimaryAsset(SelectedRow->MonsterDataID, Bundles, Delegate);
+					}
+					
+					
+				}
+			}
+		}
+		
+		
 	}
 
 }
 
+void ASGameModeBase::OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation)
+{
+
+	UAssetManager* MyAssetManager = UAssetManager::GetIfValid();
+
+	if(MyAssetManager)
+	{
+		USMonsterData* MonsterData = Cast<USMonsterData>(MyAssetManager->GetPrimaryAssetObject(LoadedId));
+
+		if(MonsterData)
+		{
+			LogOnScreen(this, "Monster Loaded!", FColor::Red);
+
+			AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator);
+	
+			if(NewBot)
+			{
+				LogOnScreen(this, FString::Printf(TEXT("Spawned enemy: %s (%s)"), *GetNameSafe(NewBot), *GetNameSafe(MonsterData)));
+	
+				USActionComponent* ActionComp = NewBot->FindComponentByClass<USActionComponent>();
+	
+				if(ActionComp)
+				{
+					for(const TSubclassOf<USAction> ActionClass : MonsterData->Actions)
+					{
+						ActionComp->AddAction(NewBot, ActionClass);
+					}
+				}
+			}
+		}
+	}
+	
+	
+}
+
 void ASGameModeBase::OnPowerupSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance,
-	EEnvQueryStatus::Type QueryStatus)
+                                                  EEnvQueryStatus::Type QueryStatus)
 {
 	if(QueryStatus != EEnvQueryStatus::Success)
 	{

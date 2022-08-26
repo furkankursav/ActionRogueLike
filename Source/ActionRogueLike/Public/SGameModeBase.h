@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameModeBase.h"
 #include "SGameModeBase.generated.h"
@@ -11,6 +12,40 @@ class UEnvQuery;
 class ASAICharacter;
 class UEnvQueryInstanceBlueprintWrapper;
 class UCurveFloat;
+class USMonsterData;
+
+/* Datatable Row for spawning monsters in game mode*/
+USTRUCT(BlueprintType)
+struct FMonsterInfoRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+
+	FMonsterInfoRow()
+	{
+		Weight = 1.0f;
+		SpawnCost = 5.f;
+		KillReward = 20.f;
+	}
+
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FPrimaryAssetId MonsterDataID;
+
+	/* Relative chance to pick this monster */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Weight;
+
+	/* Points required by game mode to spawn this unit.  */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SpawnCost;
+
+	/* Amount of credits awarded to killer of this unit */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float KillReward;
+};
+
 /**
  * 
  */
@@ -22,8 +57,8 @@ class ACTIONROGUELIKE_API ASGameModeBase : public AGameModeBase
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TSubclassOf<ASAICharacter> MinionRangedClass;
+	// UPROPERTY(EditDefaultsOnly, Category = "AI")
+	// TSubclassOf<ASAICharacter> MinionRangedClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	UEnvQuery* SpawnBotQuery;
@@ -60,6 +95,9 @@ protected:
 	UFUNCTION()
 	void OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
+
+	void OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation);
+
 	UFUNCTION()
 	void OnPowerupSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
@@ -87,6 +125,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Save Game")
 	class USSaveGame* CurrentSaveGame;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	class UDataTable* MonsterTable;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Save Game")
 	FString SaveSlotName;
