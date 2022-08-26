@@ -29,5 +29,8 @@ public:
 	/* Called after the Actor state was restored from a SaveGame file.  */
 	UFUNCTION(BlueprintNativeEvent)
 	void OnSaveableActorLoaded();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	FText GetInteractMessage(APawn* InstigatorPawn);
 	
 };

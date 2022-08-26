@@ -59,6 +59,11 @@ void ASBasePowerup::Interact_Implementation(APawn* InstigatorPawn)
 	// logic in derived classes..
 }
 
+FText ASBasePowerup::GetInteractMessage_Implementation(APawn* InstigatorPawn)
+{
+	return FText::GetEmpty();
+}
+
 void ASBasePowerup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
