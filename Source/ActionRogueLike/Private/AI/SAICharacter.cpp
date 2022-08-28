@@ -24,7 +24,7 @@ ASAICharacter::ASAICharacter()
 	AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComp"));
 	ActionComp = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComp"));
 
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+
 	GetMesh()->SetGenerateOverlapEvents(true);
 
 	HitFlashTimeName = "HitFlashTime";
