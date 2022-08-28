@@ -22,5 +22,6 @@ class ACTIONROGUELIKE_API USActionEffect_Thorns : public USActionEffect
 	virtual void StartAction_Implementation(AActor* Instigator) override;
 	virtual void StopAction_Implementation(AActor* Instigator) override;
 
+	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 };

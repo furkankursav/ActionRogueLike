@@ -14,7 +14,7 @@ ASPlayerState::ASPlayerState()
 void ASPlayerState::AddCredits(const int32 Delta)
 {
 	// Avoid user error of adding a negative amount or zero
-	if(!ensure(Delta > 0))
+	if(Delta < 0)
 	{
 		return;
 	}
@@ -62,6 +62,7 @@ void ASPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ThisClass, Credits);
+	DOREPLIFETIME(ThisClass, OnCreditsChanged);
 }
 
 void ASPlayerState::SavePlayerState_Implementation(USSaveGame* SaveObject)

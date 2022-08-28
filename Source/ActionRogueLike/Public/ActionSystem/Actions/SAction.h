@@ -17,6 +17,12 @@ struct FActionRepData
 public:
 	UPROPERTY() bool bIsRunning;
 	UPROPERTY() AActor* Instigator;
+
+	FActionRepData()
+	{
+		bIsRunning = false;
+		Instigator = nullptr;
+	}
 };
 
 /**

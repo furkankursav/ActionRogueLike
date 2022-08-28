@@ -2,12 +2,13 @@
 
 
 #include "ActionSystem/SActionComponent.h"
-
 #include "ActionRogueLike/ActionRogueLike.h"
 #include "ActionSystem/Actions/SAction.h"
 #include "Engine/ActorChannel.h"
 #include "Net/UnrealNetwork.h"
 
+
+DECLARE_CYCLE_STAT(TEXT("StartActionByName"), STAT_StartActionByName, STATGROUP_STANFORD);
 
 USActionComponent::USActionComponent()
 {
@@ -34,7 +35,22 @@ void USActionComponent::BeginPlay()
 	
 }
 
+void USActionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
 
+	TArray<USAction*> ActionsCopy = Actions;
+	for(USAction* ActiveAction : ActionsCopy)
+	{
+		if(ActiveAction && ActiveAction->GetIsRunning())
+		{
+			ActiveAction->StopAction(GetOwner());
+		}
+	}
+	
+	Super::EndPlay(EndPlayReason);
+
+	
+}
 
 
 void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -115,6 +131,9 @@ void USActionComponent::RemoveAction(USAction* ActionToRemove)
 
 bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 {
+
+	SCOPE_CYCLE_COUNTER(STAT_StartActionByName);
+	
 	for(USAction* Action : Actions)
 	{
 		if(Action && Action->ActionName == ActionName)

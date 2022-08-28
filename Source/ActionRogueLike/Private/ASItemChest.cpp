@@ -19,7 +19,7 @@ AASItemChest::AASItemChest()
 
 	TargetPitch = 110.f;
 
-	SetReplicates(true);
+	bReplicates = true;
 
 }
 

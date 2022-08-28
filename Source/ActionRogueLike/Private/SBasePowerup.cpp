@@ -21,7 +21,7 @@ ASBasePowerup::ASBasePowerup()
 
 	RespawnTime = 10.f;
 
-	SetReplicates(true);
+	bReplicates = true;
 
 }
 

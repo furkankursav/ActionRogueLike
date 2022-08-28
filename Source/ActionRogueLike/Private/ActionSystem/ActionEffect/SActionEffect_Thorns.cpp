@@ -17,13 +17,17 @@ USActionEffect_Thorns::USActionEffect_Thorns()
 void USActionEffect_Thorns::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
-	
-	USAttributeComponent* Attributes = USAttributeComponent::GetAttributes(GetOwningActionComponent()->GetOwner());
 
-	if(Attributes)
+	if(IsValid(GetOwningActionComponent()->GetOwner()))
 	{
-		Attributes->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
+		USAttributeComponent* Attributes = USAttributeComponent::GetAttributes(GetOwningActionComponent()->GetOwner());
+
+		if(Attributes)
+		{
+			Attributes->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
+		}
 	}
+	
 }
 
 void USActionEffect_Thorns::StopAction_Implementation(AActor* Instigator)

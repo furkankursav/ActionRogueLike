@@ -161,18 +161,14 @@ void ASGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper*
 			if(Rows.Num() > 0)
 			{
 				const int32 RandRowIndex = FMath::RandRange(0, Rows.Num() - 1);
-				FMonsterInfoRow* SelectedRow = Rows[RandRowIndex];
 
-				if(SelectedRow)
+				if(const FMonsterInfoRow* SelectedRow = Rows[RandRowIndex])
 				{
-
-					UAssetManager* MyAssetManager = UAssetManager::GetIfValid();
-
-					if(MyAssetManager)
+					if(UAssetManager* MyAssetManager = UAssetManager::GetIfValid())
 					{
 						LogOnScreen(this, "Monster Loading...", FColor::Green);
-						TArray<FName> Bundles;
-						FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ThisClass::OnMonsterLoaded, SelectedRow->MonsterDataID, FoundLocations[0]);
+						const TArray<FName> Bundles;
+						const FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ThisClass::OnMonsterLoaded, SelectedRow->MonsterDataID, FoundLocations[0]);
 						MyAssetManager->LoadPrimaryAsset(SelectedRow->MonsterDataID, Bundles, Delegate);
 					}
 					
@@ -188,26 +184,17 @@ void ASGameModeBase::OnBotSpawnQueryCompleted(UEnvQueryInstanceBlueprintWrapper*
 
 void ASGameModeBase::OnMonsterLoaded(FPrimaryAssetId LoadedId, FVector SpawnLocation)
 {
-
-	UAssetManager* MyAssetManager = UAssetManager::GetIfValid();
-
-	if(MyAssetManager)
+	if(const UAssetManager* MyAssetManager = UAssetManager::GetIfValid())
 	{
-		USMonsterData* MonsterData = Cast<USMonsterData>(MyAssetManager->GetPrimaryAssetObject(LoadedId));
-
-		if(MonsterData)
+		if(USMonsterData* MonsterData = Cast<USMonsterData>(MyAssetManager->GetPrimaryAssetObject(LoadedId)))
 		{
 			LogOnScreen(this, "Monster Loaded!", FColor::Red);
 
-			AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator);
-	
-			if(NewBot)
+			if(AActor* NewBot = GetWorld()->SpawnActor<AActor>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator))
 			{
 				LogOnScreen(this, FString::Printf(TEXT("Spawned enemy: %s (%s)"), *GetNameSafe(NewBot), *GetNameSafe(MonsterData)));
-	
-				USActionComponent* ActionComp = NewBot->FindComponentByClass<USActionComponent>();
-	
-				if(ActionComp)
+
+				if(USActionComponent* ActionComp = NewBot->FindComponentByClass<USActionComponent>())
 				{
 					for(const TSubclassOf<USAction> ActionClass : MonsterData->Actions)
 					{
