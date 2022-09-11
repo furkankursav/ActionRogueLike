@@ -9,6 +9,7 @@
 #include "SMonsterData.h"
 #include "SPlayerState.h"
 #include "SSaveGame.h"
+#include "SSaveGameSubsystem.h"
 #include "ActionRogueLike/ActionRogueLike.h"
 #include "ActionSystem/SActionComponent.h"
 #include "EnvironmentQuery/EnvQuery.h"
@@ -32,21 +33,20 @@ ASGameModeBase::ASGameModeBase()
 
 	PlayerStateClass = ASPlayerState::StaticClass();
 
-	SaveSlotName = "SaveGame01";
 }
 
 void ASGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
-
-	FString SelectedSaveSlot = UGameplayStatics::ParseOption(Options, "SaveGame");
-
-	if(SelectedSaveSlot.Len() > 0)
-	{
-		SaveSlotName = SelectedSaveSlot;
-	}
 	
-	LoadSaveGame();
+	USSaveGameSubsystem* SG = GetGameInstance()->GetSubsystem<USSaveGameSubsystem>();
+	
+	const FString SelectedSaveSlot = UGameplayStatics::ParseOption(Options, "SaveGame");
+	
+	if(SG)
+	{
+		SG->LoadSaveGame(SelectedSaveSlot);
+	}
 }
 
 void ASGameModeBase::StartPlay()
@@ -70,16 +70,15 @@ void ASGameModeBase::StartPlay()
 
 void ASGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
 {
-	
-
-	ASPlayerState* PS = Cast<ASPlayerState>(NewPlayer->PlayerState);
-
-	if(PS)
-	{
-		PS->LoadPlayerState(CurrentSaveGame);
-	}
+	// Calling Before Super:: so we set variables before 'beginplayingstate' is called in PlayerController (which is where we instantiate UI)
+	USSaveGameSubsystem* SG = GetGameInstance()->GetSubsystem<USSaveGameSubsystem>();
+	SG->HandleStartingNewPlayer(NewPlayer);
 
 	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+
+	// Now we're ready to override spawn location
+	// Alternatively we could override core spawn location to use store locations immediately (skipping the whole 'find player start' logic)
+	SG->OverrideSpawnTransform(NewPlayer);
 }
 
 
@@ -309,99 +308,6 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 			PS->AddCredits(CreditsPerKill);
 		}
 	}
-}
-
-void ASGameModeBase::WriteSaveGame()
-{
-	for (TObjectPtr<APlayerState> UnrealPlayerState : GameState->PlayerArray)
-	{
-		if(ASPlayerState* PS = Cast<ASPlayerState>(UnrealPlayerState))
-		{
-			PS->SavePlayerState(CurrentSaveGame);
-			break; // single player only at this point
-		}
-	}
-
-	CurrentSaveGame->SavedActors.Empty();
-
-	for(FActorIterator It(GetWorld()); It; ++It)
-	{
-		AActor* NextActor = *It;
-		if(NextActor->IsPendingKillPending() || NextActor->Implements<USGameplayInterface>() == false)
-		{
-			continue;
-		}
-		FActorSaveData ActorSaveData;
-		ActorSaveData.ActorName = NextActor->GetName();
-		ActorSaveData.ActorTransform = NextActor->GetTransform();
-
-		// Pass the array to fill with data from Actor
-		FMemoryWriter MemWriter(ActorSaveData.ByteData);
-		
-		FObjectAndNameAsStringProxyArchive Ar(MemWriter, true);
-		
-		// Find only variables with UPROPERTY(SaveGame)
-		Ar.ArIsSaveGame = true;
-
-		// Coverts Actor's SaveGame UPROPERTIES into binary array.
-		NextActor->Serialize(Ar);
-		
-		CurrentSaveGame->SavedActors.Add(ActorSaveData);
-	}
-
-	UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SaveSlotName, 0);
-	
-}
-
-void ASGameModeBase::LoadSaveGame()
-{
-	if(UGameplayStatics::DoesSaveGameExist(SaveSlotName, 0))
-	{
-		CurrentSaveGame = Cast<USSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
-
-		if(CurrentSaveGame == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Failed to load SaveGame data."));
-			return;
-		}
-
-		UE_LOG(LogTemp, Warning, TEXT("Loaded SaveGame data."));
-
-		for(FActorIterator It(GetWorld()); It; ++It)
-		{
-			AActor* NextActor = *It;
-			if(NextActor->IsPendingKillPending() || NextActor->Implements<USGameplayInterface>() == false)
-			{
-				continue;
-			}
-
-			for(FActorSaveData NextData : CurrentSaveGame->SavedActors)
-			{
-				if(NextData.ActorName == NextActor->GetName())
-				{
-					NextActor->SetActorTransform(NextData.ActorTransform);
-
-					FMemoryReader MemReader(NextData.ByteData);
-
-					FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
-					Ar.ArIsSaveGame = true;
-					// Covert binary array back into Actor's variables.
-					NextActor->Serialize(Ar);
-
-					ISGameplayInterface::Execute_OnSaveableActorLoaded(NextActor);
-					break;
-				}
-			}
-		}
-	}
-
-	else
-	{
-		CurrentSaveGame = Cast<USSaveGame>(UGameplayStatics::CreateSaveGameObject(USSaveGame::StaticClass()));
-		UE_LOG(LogTemp, Warning, TEXT("Created New SaveGame data."));
-	}
-
-
 }
 
 
